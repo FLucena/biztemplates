@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Venta de Plantillas Excel y Google Sheets</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="icon" href="./logo.png" type="image/x-icon">
+</head>
+
+<body>
+    <header id="main-header">
+        <img src="./logo.png" alt="Logo de la Empresa" id="logo">
+        <h1 id="main-title">Plantillas Profesionales de Excel y Google Sheets</h1>
+        <nav>
+            <ul>
+                <li><a href="#inicio">Inicio</a></li>
+                <li><a href="#productos">Plantillas</a></li>
+                <li><a href="#ventajas">Ventajas</a></li>
+                <li><a href="#reseñas">Reseñas</a></li>
+                <li><a href="#contacto">Contacto</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container my-5">
+        <section id="inicio">
+            <h2>Bienvenidos</h2>
+            <p>Bienvenidos a nuestra página dedicada a la venta de plantillas profesionales para Excel y Google Sheets. Nuestras plantillas están diseñadas para hacer tu trabajo más fácil y eficiente, ya seas un profesional, estudiante o dueño de negocio.</p>
+        </section>
+
+        <section id="productos">
+            <h2>Nuestras Plantillas</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <h3 class="card-title">Plantilla de Control de Inventario</h3>
+                        <img src="./inventario.png" alt="Plantilla de Control de Inventario" class="card-img-top">
+                        <div class="card-body">
+                            <p class="card-text">Monitorea el stock de tu empresa con facilidad. Incluye reportes automáticos y gráficos interactivos.</p>
+                            <button class="btn btn-primary">Comprar Ahora</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card">
+                        <h3 class="card-title">Plantilla de Facturación</h3>
+                        <img src="./facturacion.png" alt="Plantilla de Facturación" class="card-img-top">
+                        <div class="card-body">
+                            <p class="card-text">Automatiza el proceso de facturación con esta plantilla adaptable para pequeños negocios.</p>
+                            <button class="btn btn-primary">Comprar Ahora</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card">
+                        <h3 class="card-title">Plantilla de Gestión de Proyectos</h3>
+                        <img src="./proyectos.png" alt="Plantilla de Gestión de Proyectos" class="card-img-top">
+                        <div class="card-body">
+                            <p class="card-text">Organiza y gestiona tus proyectos con cronogramas y asignación de tareas eficiente.</p>
+                            <button class="btn btn-primary">Comprar Ahora</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="ventajas" class="my-5">
+            <h2>¿Por qué elegir nuestras plantillas?</h2>
+            <ul>
+                <li>✅ <strong>Fácil de usar:</strong> Diseñadas pensando en la simplicidad, para que cualquier usuario las pueda utilizar.</li>
+                <li>✅ <strong>Automatización:</strong> Automatiza tareas repetitivas como cálculos, reportes y facturación.</li>
+                <li>✅ <strong>Totalmente personalizables:</strong> Nuestras plantillas se pueden ajustar a tus necesidades específicas.</li>
+                <li>✅ <strong>Compatible con Excel y Google Sheets:</strong> Usa las plantillas tanto online como offline.</li>
+                <li>✅ <strong>Soporte incluido:</strong> Brindamos asistencia en la configuración y personalización de cada plantilla.</li>
+            </ul>
+        </section>
+
+        <section id="reseñas" class="my-5">
+            <h2>Lo que dicen nuestros clientes</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="card-text">"La plantilla de inventario me ha ahorrado horas de trabajo cada semana. Totalmente recomendable."</p>
+                            <strong>- Juan Pérez</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="card-text">"Excelente diseño y muy fácil de personalizar. Perfecto para mi negocio de facturación."</p>
+                            <strong>- María Gómez</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="card-text">"¡Increíble soporte! Me ayudaron a adaptar la plantilla de gestión de proyectos para mi equipo."</p>
+                            <strong>- Luis Rodríguez</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contacto" class="my-5">
+            <h2>Contacto</h2>
+            <p>Si tienes alguna pregunta o necesitas asistencia, no dudes en contactarnos a través del siguiente formulario:</p>
+            <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+                <div class="col-md-8 col-lg-6">
+                  <form action="https://formspree.io/f/mdknvqoa" method="POST" class="row g-3">
+                    <div class="col-md-6">
+                      <label for="name" class="form-label">Nombre:</label>
+                      <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="email" class="form-label">Correo Electrónico:</label>
+                      <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="col-12">
+                      <label for="message" class="form-label">Mensaje:</label>
+                      <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
+                    </div>
+                    <div class="col-12 text-center">
+                      <button type="submit" class="btn btn-primary">Enviar</button>
+                    </div>
+                  </form>
+                </div>
+              </div>              
+        </section>
+    </main>
+
+    <footer class="text-center my-4">
+        <p>© 2024 Venta de Plantillas | Todos los derechos reservados</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        window.onscroll = function() { changeHeaderStyle() };
+
+        function changeHeaderStyle() {
+            const header = document.getElementById("main-header");
+            if (window.pageYOffset > 100) {
+                header.classList.add("scrolled");
+            } else {
+                header.classList.remove("scrolled");
+            }
+        }
+    </script>
+</body>
+
+</html>
