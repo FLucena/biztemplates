@@ -15,7 +15,7 @@
 <body>
     <header id="main-header">
         <img src="./logo.png" alt="Logo de la Empresa" id="logo">
-        <h1 id="main-title">Plantillas Profesionales de Excel y Google Sheets</h1>
+        <h1 id="main-title">Biz Templates</h1>
         <nav>
             <ul>
                 <li><a href="#inicio">Inicio</a></li>
@@ -37,39 +37,40 @@
             <h2>Nuestras Plantillas</h2>
             <div class="row">
                 <div class="col-md-4">
-                    <div class="card">
-                        <h3 class="card-title">Plantilla de Control de Inventario</h3>
-                        <img src="./inventario.png" alt="Plantilla de Control de Inventario" class="card-img-top">
-                        <div class="card-body">
-                            <p class="card-text">Monitorea el stock de tu empresa con facilidad. Incluye reportes automáticos y gráficos interactivos.</p>
-                            <button class="btn btn-primary">Comprar Ahora</button>
+                    <div class="card h-100 d-flex flex-column">
+                        <h3 class="card-title flex-shrink-0 h-30">Plantilla de Control de Inventario</h3>
+                        <img src="./inventario.png" alt="Plantilla de Control de Inventario" class="card-img-top fixed-image">
+                        <div class="card-body flex-grow-1 d-flex flex-column">
+                            <p class="card-text flex-grow-1">Monitorea el stock de tu empresa con facilidad. Incluye reportes automáticos y gráficos interactivos.</p>
                         </div>
+                        <button class="btn btn-primary mt-auto flex-shrink-0">Comprar Ahora</button>
                     </div>
                 </div>
-
+        
                 <div class="col-md-4">
-                    <div class="card">
-                        <h3 class="card-title">Plantilla de Facturación</h3>
-                        <img src="./facturacion.png" alt="Plantilla de Facturación" class="card-img-top">
-                        <div class="card-body">
-                            <p class="card-text">Automatiza el proceso de facturación con esta plantilla adaptable para pequeños negocios.</p>
-                            <button class="btn btn-primary">Comprar Ahora</button>
+                    <div class="card h-100 d-flex flex-column">
+                        <h3 class="card-title flex-shrink-0">Plantilla de Facturación</h3>
+                        <img src="./facturacion.png" alt="Plantilla de Facturación" class="card-img-top fixed-image">
+                        <div class="card-body flex-grow-1 d-flex flex-column">
+                            <p class="card-text flex-grow-1">Automatiza el proceso de facturación con esta plantilla adaptable para pequeños negocios.</p>
                         </div>
+                        <button class="btn btn-primary mt-auto flex-shrink-0">Comprar Ahora</button>
                     </div>
                 </div>
-
+        
                 <div class="col-md-4">
-                    <div class="card">
-                        <h3 class="card-title">Plantilla de Gestión de Proyectos</h3>
-                        <img src="./proyectos.png" alt="Plantilla de Gestión de Proyectos" class="card-img-top">
-                        <div class="card-body">
-                            <p class="card-text">Organiza y gestiona tus proyectos con cronogramas y asignación de tareas eficiente.</p>
-                            <button class="btn btn-primary">Comprar Ahora</button>
+                    <div class="card h-100 d-flex flex-column">
+                        <h3 class="card-title flex-shrink-0">Plantilla de Gestión de Proyectos</h3>
+                        <img src="./proyectos.png" alt="Plantilla de Gestión de Proyectos" class="card-img-top fixed-image">
+                        <div class="card-body flex-grow-1 d-flex flex-column">
+                            <p class="card-text flex-grow-1">Organiza y gestiona tus proyectos con cronogramas y asignación de tareas eficiente.</p>
                         </div>
+                        <button class="btn btn-primary mt-auto flex-shrink-0">Comprar Ahora</button>
                     </div>
                 </div>
             </div>
         </section>
+                
 
         <section id="ventajas" class="my-5">
             <h2>¿Por qué elegir nuestras plantillas?</h2>
@@ -141,7 +142,7 @@
         </section>
     </main>
 
-    <footer class="text-center my-4">
+    <footer class="text-center mt-2">
         <p>© 2024 Venta de Plantillas | Todos los derechos reservados</p>
     </footer>
 
@@ -158,6 +159,31 @@
                 header.classList.remove("scrolled");
             }
         }
+    </script>
+
+    <script>
+        document.querySelectorAll('.btn-primary').forEach((button, index) => {
+          button.addEventListener('click', () => {
+            const productDetails = [
+              { name: 'Plantilla de Control de Inventario', price: 29.99 },
+              { name: 'Plantilla de Facturación', price: 19.99 },
+              { name: 'Plantilla de Gestión de Proyectos', price: 39.99 }
+            ];
+
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const product = productDetails[index];
+            const existingProduct = cart.find(item => item.name === product.name);
+
+            if (existingProduct) {
+              existingProduct.quantity += 1;
+            } else {
+              cart.push({ ...product, quantity: 1 });
+            }
+
+            localStorage.setItem('cart', JSON.stringify(cart));
+            window.location.href = 'carrito.html';
+          });
+        });
     </script>
 </body>
 
