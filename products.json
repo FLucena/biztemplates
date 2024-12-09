@@ -1,0 +1,28 @@
+{
+    "products": [
+        {
+            "id": 1,
+            "name": "Plantilla de Control de Inventario",
+            "price": 29.99,
+            "description": "Monitorea el stock de tu empresa con facilidad. Incluye reportes automáticos y gráficos interactivos.",
+            "fullDescription": "Sistema completo de control de inventario que incluye: seguimiento en tiempo real, alertas de stock bajo, reportes personalizables, gráficos interactivos y panel de control intuitivo.",
+            "image": "inventario.png"
+        },
+        {
+            "id": 2,
+            "name": "Plantilla de Facturación",
+            "price": 19.99,
+            "description": "Automatiza el proceso de facturación con esta plantilla adaptable para pequeños negocios.",
+            "fullDescription": "Sistema de facturación profesional con: generación automática de facturas, seguimiento de pagos, múltiples monedas, impuestos configurables y reportes detallados.",
+            "image": "facturacion.png"
+        },
+        {
+            "id": 3,
+            "name": "Plantilla de Gestión de Proyectos",
+            "price": 39.99,
+            "description": "Organiza y gestiona tus proyectos con cronogramas y asignación de tareas eficiente.",
+            "fullDescription": "Herramienta completa de gestión de proyectos que incluye: diagrama de Gantt, asignación de recursos, seguimiento de tiempo, gestión de presupuestos y reportes de progreso.",
+            "image": "proyectos.png"
+        }
+    ]
+} 
