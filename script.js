@@ -1,7 +1,5 @@
-// Remove the productDetails array and replace with async fetch
 let productDetails = [];
 
-// Function to fetch products from JSON file
 async function fetchProducts() {
     try {
         const response = await fetch('./products.json');
@@ -17,41 +15,47 @@ async function fetchProducts() {
     }
 }
 
-// DOM Elements
 const productsContainer = document.querySelector('#productos .row');
 const contactForm = document.getElementById('contactForm');
 
-// Function to generate product cards dynamically
 function renderProducts() {
     if (!productsContainer) {
-        // We're not on the products page, skip rendering
         return;
     }
     
     productsContainer.innerHTML = productDetails.map(product => `
         <div class="col-md-4">
-            <div class="card h-100 d-flex flex-column">
-                <h3 class="card-title flex-shrink-0">${product.name}</h3>
-                <img src="./assets/images/${getProductImage(product)}" alt="${product.name}" class="card-img-top fixed-image">
-                <div class="card-body flex-grow-1 d-flex flex-column">
-                    <p class="card-text flex-grow-1">${product.description}</p>
+            <div class="card h-100">
+                <h3 class="card-title">${product.name}</h3>
+                <div class="card-img-container">
+                    <img src="./assets/images/${getProductImage(product)}" alt="${product.name}" class="card-img-top">
+                </div>
+                <div class="card-body">
+                    <p class="card-text">${product.description}</p>
                     <p class="product-full-description" style="display: none">${product.fullDescription}</p>
                 </div>
-                <button class="btn btn-info mb-2 show-details">Ver Detalles</button>
-                <button class="btn btn-primary mt-auto flex-shrink-0" data-product-id="${product.id}">
-                    Comprar Ahora ($${product.price})
-                </button>
+                <div class="card-footer">
+                    <button class="btn btn-link show-details" aria-label="Ver más detalles">
+                        <i data-lucide="plus" class="icon"></i>
+                    </button>
+                    <button class="btn btn-primary" data-product-id="${product.id}">
+                        <div class="icon-container">
+                            <i data-lucide="shopping-cart" class="icon"></i>
+                        </div>
+                        <span class="price">$${product.price}</span>
+                    </button>
+                </div>
             </div>
         </div>
     `).join('');
     
-    // Add event listeners only if we're on the products page
+    lucide.createIcons();
+    
     if (productsContainer) {
         document.querySelectorAll('.show-details').forEach((button, index) => {
             button.addEventListener('click', () => toggleProductDetails(index));
         });
         
-        // Add buy buttons event listeners
         document.querySelectorAll('[data-product-id]').forEach(button => {
             button.addEventListener('click', () => {
                 const productId = parseInt(button.dataset.productId);
@@ -63,34 +67,57 @@ function renderProducts() {
         });
     }
 
-    // Update cart count when page loads
     updateCartCount();
 }
 
-// Helper function to get the correct image path
 function getProductImage(product) {
     return product.image || 'template-default.png';
 }
 
-// Function to toggle product details
 function toggleProductDetails(index) {
     const card = document.querySelectorAll('.card')[index];
+    const cardBody = card.querySelector('.card-body');
     const description = card.querySelector('.card-text');
     const fullDescription = card.querySelector('.product-full-description');
     const button = card.querySelector('.show-details');
 
     if (fullDescription.style.display === 'none') {
-        description.style.display = 'none';
-        fullDescription.style.display = 'block';
-        button.textContent = 'Ver Menos';
+        cardBody.classList.add('expanded');
+        description.style.opacity = '0';
+        
+        setTimeout(() => {
+            description.style.display = 'none';
+            fullDescription.style.display = 'block';
+            fullDescription.style.opacity = '0';
+            
+            fullDescription.offsetHeight;
+            fullDescription.style.opacity = '1';
+        }, 300);
+
+        button.innerHTML = `
+            <i data-lucide="minus" class="icon"></i>
+        `;
     } else {
-        description.style.display = 'block';
-        fullDescription.style.display = 'none';
-        button.textContent = 'Ver Detalles';
+        cardBody.classList.remove('expanded');
+        fullDescription.style.opacity = '0';
+        
+        setTimeout(() => {
+            fullDescription.style.display = 'none';
+            description.style.display = 'block';
+            description.style.opacity = '0';
+            
+            description.offsetHeight;
+            description.style.opacity = '1';
+        }, 300);
+
+        button.innerHTML = `
+            <i data-lucide="plus" class="icon"></i>
+        `;
     }
+    
+    lucide.createIcons();
 }
 
-// Cart functionality
 function updateCartCount() {
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -141,7 +168,6 @@ function showNotification(message) {
     }, 2000);
 }
 
-// Form validation
 function validateForm(event) {
     event.preventDefault();
     const formData = new FormData(contactForm);
@@ -155,49 +181,66 @@ function validateForm(event) {
     }
 }
 
-// Add these functions to handle the cart popup
 function toggleCartPopup() {
     const popup = document.getElementById('cartPopup');
-    popup.classList.toggle('show');
-    if (popup.classList.contains('show')) {
+    if (!popup) return;
+    
+    const isVisible = popup.classList.contains('show');
+    if (isVisible) {
+        popup.classList.remove('show');
+    } else {
+        popup.classList.add('show');
         renderCartItems();
     }
 }
 
 function renderCartItems() {
-    const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
     const cartItemsContainer = document.getElementById('cartItems');
-    const cartTotalElement = document.getElementById('cartTotal');
+    const cartTotal = document.getElementById('cartTotal');
     
-    if (cartItems.length === 0) {
-        cartItemsContainer.innerHTML = '<p class="text-center my-4">El carrito está vacío</p>';
-        cartTotalElement.textContent = '0.00';
+    if (!cartItemsContainer) return;
+    
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    
+    if (cart.length === 0) {
+        cartItemsContainer.innerHTML = `
+            <div class="empty-cart">
+                <i data-lucide="shopping-cart" class="icon-lg"></i>
+                <p>Tu carrito está vacío</p>
+            </div>
+        `;
+        cartTotal.textContent = '0.00';
         return;
     }
-
-    let total = 0;
-    cartItemsContainer.innerHTML = cartItems.map(item => {
-        const itemTotal = item.price * item.quantity;
-        total += itemTotal;
-        return `
-            <div class="cart-item">
-                <div class="cart-item-info">
-                    <h4>${item.name}</h4>
-                    <div>$${item.price} x ${item.quantity}</div>
-                </div>
+    
+    const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    
+    cartItemsContainer.innerHTML = cart.map(item => `
+        <div class="cart-item">
+            <img src="./assets/images/${item.image}" alt="${item.name}" class="cart-item-image">
+            <div class="cart-item-details">
+                <div class="cart-item-title">${item.name}</div>
+                <div class="cart-item-price">$${(item.price * item.quantity).toFixed(2)}</div>
                 <div class="cart-item-quantity">
-                    <button class="btn btn-sm btn-outline-primary" onclick="updateCartItemQuantity(${item.id}, ${item.quantity - 1})">-</button>
+                    <button onclick="updateCartItemQuantity(${item.id}, ${item.quantity - 1})" 
+                            ${item.quantity <= 1 ? 'disabled' : ''}>
+                        <i data-lucide="minus" class="icon-sm"></i>
+                    </button>
                     <span>${item.quantity}</span>
-                    <button class="btn btn-sm btn-outline-primary" onclick="updateCartItemQuantity(${item.id}, ${item.quantity + 1})">+</button>
-                    <button class="btn btn-sm btn-outline-danger ms-2" onclick="removeFromCart(${item.id})">
-                        <i class="fas fa-trash"></i>
+                    <button onclick="updateCartItemQuantity(${item.id}, ${item.quantity + 1})"
+                            ${item.quantity >= 10 ? 'disabled' : ''}>
+                        <i data-lucide="plus" class="icon-sm"></i>
+                    </button>
+                    <button class="remove-item" onclick="removeFromCart(${item.id})">
+                        <i data-lucide="trash-2" class="icon-sm"></i>
                     </button>
                 </div>
             </div>
-        `;
-    }).join('');
+        </div>
+    `).join('');
     
-    cartTotalElement.textContent = total.toFixed(2);
+    cartTotal.textContent = totalPrice.toFixed(2);
+    lucide.createIcons();
 }
 
 function updateCartItemQuantity(productId, newQuantity) {
@@ -221,10 +264,9 @@ function removeFromCart(productId) {
     renderCartItems();
 }
 
-// Add these functions for cart management
 function clearCart() {
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    if (cart.length === 0) return; // Do nothing if cart is empty
+    if (cart.length === 0) return;
     
     if (confirm('¿Estás seguro de que deseas vaciar el carrito?')) {
         localStorage.setItem('cart', JSON.stringify([]));
@@ -234,51 +276,53 @@ function clearCart() {
     }
 }
 
-// Add this new function to handle checkout
 function handleCheckout() {
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    if (cart.length === 0) return; // Do nothing if cart is empty
+    if (cart.length === 0) return;
     
     window.location.href = 'carrito.html';
 }
 
-// Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    fetchProducts(); // Replace renderProducts() with fetchProducts()
+    fetchProducts();
     if (contactForm) {
         contactForm.addEventListener('submit', validateForm);
     }
     
-    // Add cart popup event listeners
-    document.getElementById('cartButton')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        toggleCartPopup();
-    });
+    const cartButton = document.querySelector('.cart-button');
+    const cartPopup = document.getElementById('cartPopup');
+    const closeCartPopup = document.getElementById('closeCartPopup');
+
+    if (cartButton && cartPopup) {
+        cartButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            cartPopup.classList.add('show');
+            renderCartItems();
+        });
+    }
     
-    document.getElementById('closeCartPopup')?.addEventListener('click', () => {
-        document.getElementById('cartPopup')?.classList.remove('show');
-    });
+    if (closeCartPopup) {
+        closeCartPopup.addEventListener('click', () => {
+            cartPopup.classList.remove('show');
+        });
+    }
     
-    // Close popup when clicking outside
     document.addEventListener('click', (e) => {
-        const popup = document.getElementById('cartPopup');
-        const cartButton = document.getElementById('cartButton');
-        if (!popup || !cartButton) return;
-        
-        const isClickInsideCart = popup.contains(e.target);
-        const isClickOnCartButton = cartButton.contains(e.target);
-        const isQuantityButton = e.target.closest('.cart-item-quantity button');
-        
-        if (!isClickInsideCart && !isClickOnCartButton && !isQuantityButton && popup.classList.contains('show')) {
-            popup.classList.remove('show');
+        if (cartPopup && cartPopup.classList.contains('show')) {
+            const isClickInsideCart = cartPopup.contains(e.target);
+            const isClickOnCartButton = cartButton && cartButton.contains(e.target);
+            
+            if (!isClickInsideCart && !isClickOnCartButton) {
+                cartPopup.classList.remove('show');
+            }
         }
     });
 
-    // Initialize scroll handler
     handleScroll();
+    initFeatureCarousel();
 });
 
-// Update the header scroll effect
 function handleScroll() {
     const header = document.getElementById("main-header");
     if (!header) return;
@@ -290,8 +334,334 @@ function handleScroll() {
     }
 }
 
-// Add scroll event listener
 window.addEventListener('scroll', handleScroll);
 
-// Call once on page load to set initial state
-document.addEventListener('DOMContentLoaded', handleScroll); 
+document.addEventListener('DOMContentLoaded', handleScroll);
+
+document.addEventListener('DOMContentLoaded', function() {
+    const cartButton = document.getElementById('cartButton');
+    const cartPopup = document.getElementById('cartPopup');
+    const closeCartPopup = document.getElementById('closeCartPopup');
+
+    cartButton.addEventListener('click', function() {
+        cartPopup.classList.add('active');
+    });
+
+    closeCartPopup.addEventListener('click', function() {
+        cartPopup.classList.remove('active');
+    });
+
+    document.addEventListener('click', function(event) {
+        if (!cartPopup.contains(event.target) && !cartButton.contains(event.target)) {
+            cartPopup.classList.remove('active');
+        }
+    });
+
+    cartPopup.addEventListener('click', function(event) {
+        event.stopPropagation();
+    });
+}); 
+
+function initFeatureCarousel() {
+    const track = document.querySelector('.carousel-track');
+    const slides = document.querySelectorAll('.carousel-slide');
+    const prevButton = document.querySelector('.carousel-arrow.prev');
+    const nextButton = document.querySelector('.carousel-arrow.next');
+    const dotsContainer = document.querySelector('.carousel-dots');
+    
+    let currentIndex = 0;
+    const slidesPerView = 1;
+    
+    slides.forEach((_, index) => {
+        const dot = document.createElement('button');
+        dot.classList.add('carousel-dot');
+        dot.setAttribute('aria-label', `Ir a característica ${index + 1}`);
+        dotsContainer.appendChild(dot);
+    });
+    
+    const dots = document.querySelectorAll('.carousel-dot');
+    updateDots();
+    
+    function updateDots() {
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index === currentIndex);
+        });
+    }
+    
+    function goToSlide(index) {
+        currentIndex = index;
+        const slideWidth = slides[0].offsetWidth;
+        track.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
+        updateDots();
+    }
+    
+    prevButton.addEventListener('click', () => {
+        currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+        goToSlide(currentIndex);
+    });
+    
+    nextButton.addEventListener('click', () => {
+        currentIndex = (currentIndex + 1) % slides.length;
+        goToSlide(currentIndex);
+    });
+    
+    dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => goToSlide(index));
+    });
+    
+    window.addEventListener('resize', () => {
+        goToSlide(currentIndex);
+    });
+    
+    setInterval(() => {
+        currentIndex = (currentIndex + 1) % slides.length;
+        goToSlide(currentIndex);
+    }, 5000);
+} 
+
+function updateQuantity(index, newQuantity) {
+    if (newQuantity < 1 || newQuantity > 10) return;
+    
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    if (index >= 0 && index < cart.length) {
+        cart[index].quantity = newQuantity;
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCartCount();
+        renderCartItems();
+    }
+} 
+
+function renderCart() {
+    const cartContainer = document.getElementById('cart-items');
+    if (!cartContainer) return;
+
+    if (cartItems.length === 0) {
+        cartContainer.innerHTML = `
+            <div class="empty-cart">
+                <i data-lucide="shopping-cart" class="icon-lg"></i>
+                <p>Tu carrito está vacío</p>
+            </div>`;
+        lucide.createIcons();
+        return;
+    }
+
+    let totalPrice = 0;
+    cartContainer.innerHTML = `
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Precio</th>
+                    <th>Cantidad</th>
+                    <th>Total</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${cartItems.map((item, index) => {
+                    const itemTotal = item.price * item.quantity;
+                    totalPrice += itemTotal;
+                    return `
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="./assets/images/${item.image}" alt="${item.name}" class="cart-thumbnail">
+                                    <span>${item.name}</span>
+                                </div>
+                            </td>
+                            <td>$${item.price.toFixed(2)}</td>
+                            <td>
+                                <div class="quantity-control">
+                                    <button class="quantity-btn" onclick="updateQuantity(${index}, ${item.quantity - 1})" 
+                                            ${item.quantity <= 1 ? 'disabled' : ''}>
+                                        <i data-lucide="minus" class="icon-sm"></i>
+                                    </button>
+                                    <span>${item.quantity}</span>
+                                    <button class="quantity-btn" onclick="updateQuantity(${index}, ${item.quantity + 1})"
+                                            ${item.quantity >= 10 ? 'disabled' : ''}>
+                                        <i data-lucide="plus" class="icon-sm"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>$${itemTotal.toFixed(2)}</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" onclick="deleteItem(${index})">
+                                    <i data-lucide="trash-2" class="icon-sm"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('')}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                    <td><strong>$${totalPrice.toFixed(2)}</strong></td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>`;
+    
+    lucide.createIcons();
+}
+
+function updateQuantity(index, newQuantity) {
+    if (newQuantity < 1 || newQuantity > 10) {
+        return;
+    }
+    
+    cartItems[index].quantity = newQuantity;
+    localStorage.setItem('cart', JSON.stringify(cartItems));
+    renderCart();
+}
+
+let cartItems = JSON.parse(localStorage.getItem('cart')) || []; 
+
+function renderCartPage() {
+    const cartContainer = document.getElementById('wallet_container');
+    if (!cartContainer) return;
+    
+    let cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+    
+    if (cartItems.length > 0) {
+        cartItems.sort((a, b) => a.name.localeCompare(b.name));
+        let totalPrice = 0;
+        cartContainer.innerHTML = '<table class="table table-striped"><thead><tr><th>Producto</th><th>Portada</th><th>Cantidad</th><th>Precio</th><th>Acciones</th></tr></thead><tbody>' + 
+            cartItems.map((item, index) => {
+                if (item.name && item.price !== undefined && item.quantity !== undefined) {
+                    const itemTotal = item.price * item.quantity;
+                    totalPrice += itemTotal;
+                    return `<tr>
+                        <td>${item.name}</td>
+                        <td><img src="./assets/images/${item.image}" alt="${item.name}" class="cart-thumbnail"></td>
+                        <td>
+                            <div class="quantity-control">
+                                <button class="quantity-btn" onclick="updateCartPageQuantity(${index}, ${item.quantity - 1})" 
+                                        ${item.quantity <= 1 ? 'disabled' : ''}>
+                                    <i data-lucide="minus" class="icon-sm"></i>
+                                </button>
+                                <span>${item.quantity}</span>
+                                <button class="quantity-btn" onclick="updateCartPageQuantity(${index}, ${item.quantity + 1})"
+                                        ${item.quantity >= 10 ? 'disabled' : ''}>
+                                    <i data-lucide="plus" class="icon-sm"></i>
+                                </button>
+                            </div>
+                        </td>
+                        <td>$${itemTotal.toFixed(2)}</td>
+                        <td>
+                            <button class="btn-icon-only" aria-label="Remove item" onclick="deleteCartPageItem(${index})">
+                                <i data-lucide="trash-2" class="icon"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+                }
+                return '';
+            }).join('') + 
+            `</tbody></table>
+            <form id="user-details-form" class="mt-4">
+                <div class="mb-3">
+                    <label for="email" class="form-label">Correo Electrónico:</label>
+                    <input type="email" class="form-control" id="email" required>
+                </div>
+                <div class="mb-3">
+                    <label for="name" class="form-label">Nombre:</label>
+                    <input type="text" class="form-control" id="name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="surname" class="form-label">Apellido:</label>
+                    <input type="text" class="form-control" id="surname" required>
+                </div>
+                <div class="mb-3">
+                    <label for="address" class="form-label">Dirección:</label>
+                    <input type="text" class="form-control" id="address" required>
+                </div>
+            </form>`;
+    } else {
+        cartContainer.innerHTML = `
+            <div class="empty-cart">
+                <i data-lucide="shopping-cart" class="icon-lg"></i>
+                <p>El carrito está vacío.</p>
+                <button class="btn btn-primary mt-3" onclick="window.location.href='index.html'">
+                    <i data-lucide="arrow-left" class="icon-sm"></i>
+                    Volver a la Tienda
+                </button>
+            </div>`;
+    }
+    lucide.createIcons();
+}
+
+function updateCartPageQuantity(index, newQuantity) {
+    newQuantity = parseInt(newQuantity, 10);
+    if (newQuantity >= 1 && newQuantity <= 10) {
+        let cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+        cartItems[index].quantity = newQuantity;
+        localStorage.setItem('cart', JSON.stringify(cartItems));
+        renderCartPage();
+    } else {
+        showNotification('La cantidad debe estar entre 1 y 10.');
+        renderCartPage();
+    }
+}
+
+function initPayment() {
+    const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+    if (cartItems.length === 0) {
+        showNotification('El carrito está vacío');
+        return;
+    }
+
+    const email = document.getElementById('email')?.value.trim();
+    const name = document.getElementById('name')?.value.trim();
+    const surname = document.getElementById('surname')?.value.trim();
+    const address = document.getElementById('address')?.value.trim();
+
+    if (!email || !name || !surname || !address) {
+        showError('Por favor, complete todos los campos del formulario.');
+        return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        showError('Por favor, ingrese un correo electrónico válido');
+        return;
+    }
+
+    const orderData = {
+        customerEmail: email,
+        customerName: name,
+        customerSurname: surname,
+        customerAddress: address,
+        items: cartItems.map(item => ({
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            total: item.price * item.quantity
+        })),
+        totalOrder: cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+        orderDate: new Date().toISOString(),
+        orderNumber: `ORD-${Date.now()}`
+    };
+
+    const googleScriptUrl = "https://script.google.com/macros/s/AKfycbxbDk9aSe0AcMl_qcykWtCVt2xaOW5qvxJoBUmMqt10vq4BmWkGa_RMlf2YYebGfjAf/exec";
+    
+    fetch(googleScriptUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData)
+    })
+    .then(response => {
+        showNotification('Orden registrada. En breve le llegará un correo con los detalles de la orden.');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showError('Error al registrar la orden. Por favor, intente nuevamente.');
+    });
+}
+
+if (window.location.pathname.includes('carrito.html')) {
+    renderCartPage();
+    lucide.createIcons();
+} 
