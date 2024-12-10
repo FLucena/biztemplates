@@ -53,7 +53,7 @@
         if (cartItems.length > 0) {
           cartItems.sort((a, b) => a.name.localeCompare(b.name));
           let totalPrice = 0;
-          cartContainer.innerHTML = '<table class="table table-striped"><thead><tr><th>Producto</th><th>Portada</th><th>Cantidad</th><th>Precio</th><th>Acciones</th><th>Pago</th></tr></thead><tbody>' + 
+          cartContainer.innerHTML = '<table class="table table-striped"><thead><tr><th>Producto</th><th>Portada</th><th>Cantidad</th><th>Precio</th><th>Acciones</th></tr></thead><tbody>' + 
             cartItems.map((item, index) => {
               if (item.name && item.price !== undefined && item.quantity !== undefined) {
                 const itemTotal = item.price * item.quantity;
@@ -66,11 +66,6 @@
                           </td>
                           <td>$${itemTotal.toFixed(2)}</td>
                           <td><button class="btn btn-danger btn-sm" onclick="deleteItem(${index})">Eliminar</button></td>
-                          <td>
-                            <button class="btn btn-primary btn-sm" onclick="window.open('https://mpago.la/1AcZQLv', 'MercadoPago', 'width=800,height=600,toolbar=0,scrollbars=1,status=1,resizable=1,location=1,menuBar=0')">
-                                <i class="fas fa-credit-card me-1"></i>Pagar
-                            </button>
-                          </td>
                         </tr>`;
               }
               return '';
@@ -82,7 +77,25 @@
                 * Precios en Pesos Argentinos (ARS)<br>
                 * Precio final con impuestos incluidos
               </p>
-            </div>`;
+            </div>
+            <form id="user-details-form" class="mt-4">
+              <div class="mb-3">
+                <label for="email" class="form-label">Correo Electrónico:</label>
+                <input type="email" class="form-control" id="email" required>
+              </div>
+              <div class="mb-3">
+                <label for="name" class="form-label">Nombre:</label>
+                <input type="text" class="form-control" id="name" required>
+              </div>
+              <div class="mb-3">
+                <label for="surname" class="form-label">Apellido:</label>
+                <input type="text" class="form-control" id="surname" required>
+              </div>
+              <div class="mb-3">
+                <label for="address" class="form-label">Dirección:</label>
+                <input type="text" class="form-control" id="address" required>
+              </div>
+            </form>`;
         } else {
           cartContainer.innerHTML = '<p>El carrito está vacío.</p>';
         }
@@ -181,19 +194,27 @@
             return;
         }
 
-        // Prompt for email
-        const email = prompt('Por favor, ingrese su correo electrónico para el seguimiento del pedido:');
-        
-        // Validate email format
+        const email = document.getElementById('email').value.trim();
+        const name = document.getElementById('name').value.trim();
+        const surname = document.getElementById('surname').value.trim();
+        const address = document.getElementById('address').value.trim();
+
+        if (!email || !name || !surname || !address) {
+            showError('Por favor, complete todos los campos del formulario.');
+            return;
+        }
+
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!email || !emailRegex.test(email)) {
+        if (!emailRegex.test(email)) {
             showError('Por favor, ingrese un correo electrónico válido');
             return;
         }
 
-        // Prepare the data to send
         const orderData = {
             customerEmail: email,
+            customerName: name,
+            customerSurname: surname,
+            customerAddress: address,
             items: cartItems.map(item => ({
                 name: item.name,
                 price: item.price,
@@ -207,8 +228,6 @@
 
         const googleScriptUrl = "https://script.google.com/macros/s/AKfycbxbDk9aSe0AcMl_qcykWtCVt2xaOW5qvxJoBUmMqt10vq4BmWkGa_RMlf2YYebGfjAf/exec";
         
-        console.log(orderData);
-        
         fetch(googleScriptUrl, {
             method: 'POST',
             mode: 'no-cors',
@@ -217,11 +236,23 @@
             },
             body: JSON.stringify(orderData)
         })
-        .then(() => {
+        .then(response => {
+            console.log('Response:', {
+                type: response.type,
+                status: response.status,
+                ok: response.ok,
+                statusText: response.statusText,
+                headers: [...response.headers],
+                url: response.url
+            });
             showNotification('Orden registrada. Por favor, utilice los botones de MercadoPago individuales para realizar el pago.');
         })
         .catch(error => {
-            console.error('Error sending order:', error);
+            console.error('Error:', {
+                name: error.name,
+                message: error.message,
+                code: error.code
+            });
             showError('Error al registrar la orden. Por favor, intente nuevamente.');
         });
       }
