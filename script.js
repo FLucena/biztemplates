@@ -28,7 +28,7 @@ function renderProducts() {
             <div class="card h-100">
                 <h3 class="card-title">${product.name}</h3>
                 <div class="card-img-container">
-                    <img src="./assets/images/${getProductImage(product)}" alt="${product.name}" class="card-img-top">
+                    <img src="./assets/images/${product.image}" alt="${product.name}" class="card-img-top">
                 </div>
                 <div class="card-body">
                     <p class="card-text">${product.description}</p>
@@ -141,7 +141,7 @@ function addToCart(product) {
         }
     } else {
         cart.push({ ...product, quantity: 1 });
-        showNotification('Producto agregado al carrito');
+        showNotification('¡Item agregado al carrito!');
     }
 
     localStorage.setItem('cart', JSON.stringify(cart));
@@ -150,9 +150,9 @@ function addToCart(product) {
     document.getElementById('cartPopup').classList.add('show');
 }
 
-function showNotification(message) {
+function showNotification(message, type = 'success') {
     const notification = document.createElement('div');
-    notification.className = 'notification';
+    notification.className = `notification ${type}`;
     notification.textContent = message;
     document.body.appendChild(notification);
 
@@ -558,24 +558,34 @@ function renderCartPage() {
                 return '';
             }).join('') + 
             `</tbody></table>
-            <form id="user-details-form" class="mt-4">
-                <div class="mb-3">
-                    <label for="email" class="form-label">Correo Electrónico:</label>
-                    <input type="email" class="form-control" id="email" required>
-                </div>
-                <div class="mb-3">
-                    <label for="name" class="form-label">Nombre:</label>
-                    <input type="text" class="form-control" id="name" required>
-                </div>
-                <div class="mb-3">
-                    <label for="surname" class="form-label">Apellido:</label>
-                    <input type="text" class="form-control" id="surname" required>
-                </div>
-                <div class="mb-3">
-                    <label for="address" class="form-label">Dirección:</label>
-                    <input type="text" class="form-control" id="address" required>
-                </div>
-            </form>`;
+            <div class="text-end mb-4">
+                <strong class="d-block mb-2">Total: $${totalPrice.toFixed(2)}</strong>
+                <p class="text-muted small">
+                    * Precios en Pesos Argentinos (ARS)<br>
+                    * Precio final con impuestos incluidos
+                </p>
+            </div>
+            <div class="mt-4">
+                <h3>Datos de Contacto</h3>
+                <form id="user-details-form" class="row g-3">
+                    <div class="col-md-6">
+                        <label for="email" class="form-label">Correo Electrónico:</label>
+                        <input type="email" class="form-control" id="email" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="name" class="form-label">Nombre:</label>
+                        <input type="text" class="form-control" id="name" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="surname" class="form-label">Apellido:</label>
+                        <input type="text" class="form-control" id="surname" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="address" class="form-label">Dirección Completa:</label>
+                        <input type="text" class="form-control" id="address" required>
+                    </div>
+                </form>
+            </div>`;
     } else {
         cartContainer.innerHTML = `
             <div class="empty-cart">
@@ -591,22 +601,34 @@ function renderCartPage() {
 }
 
 function updateCartPageQuantity(index, newQuantity) {
-    newQuantity = parseInt(newQuantity, 10);
-    if (newQuantity >= 1 && newQuantity <= 10) {
-        let cartItems = JSON.parse(localStorage.getItem('cart')) || [];
-        cartItems[index].quantity = newQuantity;
-        localStorage.setItem('cart', JSON.stringify(cartItems));
+    if (newQuantity < 1 || newQuantity > 10) return;
+    
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    if (index >= 0 && index < cart.length) {
+        cart[index].quantity = newQuantity;
+        localStorage.setItem('cart', JSON.stringify(cart));
         renderCartPage();
-    } else {
-        showNotification('La cantidad debe estar entre 1 y 10.');
+        updateCartCount();
+        showNotification('Cantidad actualizada', 'success');
+    }
+}
+
+function deleteCartPageItem(index) {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    if (index >= 0 && index < cart.length) {
+        cart.splice(index, 1);
+        localStorage.setItem('cart', JSON.stringify(cart));
         renderCartPage();
+        updateCartCount();
+        showNotification('Producto eliminado del carrito', 'warning');
     }
 }
 
 function initPayment() {
     const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+    
     if (cartItems.length === 0) {
-        showNotification('El carrito está vacío');
+        showNotification('El carrito está vacío. Agregue productos antes de continuar.', 'warning');
         return;
     }
 
@@ -615,14 +637,20 @@ function initPayment() {
     const surname = document.getElementById('surname')?.value.trim();
     const address = document.getElementById('address')?.value.trim();
 
-    if (!email || !name || !surname || !address) {
-        showError('Por favor, complete todos los campos del formulario.');
+    const emptyFields = [];
+    if (!email) emptyFields.push('Email');
+    if (!name) emptyFields.push('Nombre');
+    if (!surname) emptyFields.push('Apellido');
+    if (!address) emptyFields.push('Dirección');
+
+    if (emptyFields.length > 0) {
+        showNotification(`Complete los siguientes campos: ${emptyFields.join(', ')}`, 'warning');
         return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-        showError('Por favor, ingrese un correo electrónico válido');
+        showNotification('Por favor, ingrese un correo electrónico válido', 'warning');
         return;
     }
 
@@ -653,11 +681,11 @@ function initPayment() {
         body: JSON.stringify(orderData)
     })
     .then(response => {
-        showNotification('Orden registrada. En breve le llegará un correo con los detalles de la orden.');
+        showNotification('Orden registrada. En breve le llegará un correo con los detalles.');
     })
     .catch(error => {
         console.error('Error:', error);
-        showError('Error al registrar la orden. Por favor, intente nuevamente.');
+        showNotification('Error al registrar la orden. Por favor, intente nuevamente.');
     });
 }
 

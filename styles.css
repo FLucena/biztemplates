@@ -386,11 +386,32 @@ header {
 }
 
 .notification {
-    background-color: var(--primary-color);
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%) translateY(120%);
+    padding: 1rem 1.5rem;
     color: white;
     border-radius: var(--border-radius);
-    padding: 0.75rem 1rem;
-    box-shadow: var(--shadow);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 1100;
+    transition: transform 0.3s ease;
+    text-align: center;
+    min-width: 200px;
+}
+
+.notification.success {
+    background-color: var(--primary-color);
+}
+
+.notification.warning {
+    background-color: #ffebee;
+    color: #d32f2f;
+    border: 1px solid #ffcdd2;
+}
+
+.notification.show {
+    transform: translateX(-50%) translateY(0);
 }
 
 .error-popup {
