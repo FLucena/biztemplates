@@ -16,7 +16,7 @@
 
 ## Cómo Empezar
 
-1. Visita nuestra aplicación web en [www.biztemplates.com](http://www.biztemplates.com).
+1. Visita nuestra aplicación web en [www.biztemplates.com](https://biztemplates.netlify.app/).
 2. Regístrate o inicia sesión en tu cuenta.
 3. Explora nuestra biblioteca de plantillas.
 4. Elige la plantilla que más te guste y comienza a personalizarla.
