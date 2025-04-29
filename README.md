@@ -6,6 +6,13 @@
 
 **BizTemplates** es una aplicación web que ofrece una amplia variedad de plantillas diseñadas para satisfacer las necesidades de tu negocio. Desde documentos administrativos hasta presentaciones de marketing, tenemos todo lo que necesitas para ahorrar tiempo y mejorar la presentación de tu trabajo.
 
+## Tecnologías Utilizadas
+
+- **Frontend**: HTML5, CSS3 y JavaScript vanilla
+- **Diseño**: CSS puro para estilos y diseño responsivo
+- **Almacenamiento**: JSON para gestión de datos
+- **Despliegue**: Netlify para hosting y despliegue continuo
+
 ## Características
 
 - **Variedad de Plantillas**: Accede a plantillas para diferentes áreas de tu negocio: marketing, finanzas, recursos humanos y más.
